@@ -80,9 +80,9 @@
                   />
                 </div>
                 <div class="col-md-8">
-                  <h1>Иван Иванов</h1>
-                  <p class="paragraph">ID: 1</p>
-                  <p class="paragraph">Email: ivan@ya.ru</p>
+                  <h1 id="userName"></h1>
+                  <p class="paragraph">ID: <span id="userId"></span></p>
+                  <p class="paragraph">Email: <span id="userEmail"></span></p>
                   <h2>О себе:</h2>
                   <p class="paragraph">
                     Lorem ipsum dolor sit amet consectetur adipisicing elit.
@@ -145,7 +145,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-5 ml-auto">
                   <div class="row border">
                     <div class="row">
                       <div class="col-4">
@@ -184,7 +184,22 @@
                   </div>
                 </div>
               </div>
-              <div class="row"><h3>Список друзей</h3></div>
+              <div class="row">
+                <h3 class="text-center">Список друзей</h3>
+                <div class="col-12">
+                  <table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th scope="col">Id</th>
+                        <th scope="col">Имя</th>
+                        <th scope="col">Фамилия</th>
+                        <th scope="col">Email</th>
+                      </tr>
+                    </thead>
+                    <tbody id="usersListTable"></tbody>
+                  </table>
+                </div>
+              </div>
             </div>
             <div
               class="tab-pane fade"
@@ -222,6 +237,10 @@
         let response = await fetch("/getUser");
         return await response.json();
       }
+      async function getUsers() {
+        let response = await fetch("/getUsers");
+        return await response.json();
+      }
 
       addEventListener("popstate", (event) => {
         let pathPopstate = location.pathname.split("/")[2];
@@ -235,10 +254,29 @@
       });
 
       if (pathname == "profile") {
-        user = getUser();
-        console.log(user);
+        getUser().then((user) => {
+          console.log(user);
+          userName.innerText = `${user.name} ${user.lastname}`;
+          userId.innerText = `${user.id}`;
+          userEmail.innerText = `${user.email}`;
+        });
+
         $("#v-pills-profile").tab("show");
       } else if (pathname == "messages") {
+        getUsers().then((users) => {
+          console.log(users);
+          for (let i = 0; i < users.length; i++) {
+            usersListTable.innerHTML += `
+											<tr>
+												<th scope="row">${users[i].id}</th>
+												<td>${users[i].name}</td>
+												<td>${users[i].lastname}</td>
+												<td>${users[i].email}</td>
+											</tr>
+					`;
+          }
+        });
+
         $("#v-pills-messages").tab("show");
       } else if (pathname == "settings") {
         $("#v-pills-settings").tab("show");
